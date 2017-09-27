@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QGraphicsScene>
 #include "finder.h"
 
 namespace Ui {
@@ -19,14 +20,21 @@ public:
 public slots:
     void updateView();
 
+protected: signals:
+    void refreshBlocks();
+    void refreshWay();
+
 private slots:
     void on_refresh_clicked();
 
     void on_pathFinder_clicked();
 
 private:
+    void writeToKeeper();
+
     Ui::MainWindow *ui;
-    Keeper *keeper_;
+    Keeper *const keeper_;
+    QGraphicsScene *scene;
 };
 
 #endif // MAINWINDOW_H

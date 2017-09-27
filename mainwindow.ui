@@ -24,6 +24,9 @@
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
          <widget class="QSpinBox" name="highScreen">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
           <property name="maximum">
            <number>4096</number>
           </property>
@@ -45,6 +48,9 @@
         </item>
         <item row="1" column="1">
          <widget class="QSpinBox" name="widthScreen">
+          <property name="readOnly">
+           <bool>true</bool>
+          </property>
           <property name="maximum">
            <number>4096</number>
           </property>
@@ -154,9 +160,6 @@
      </layout>
     </item>
    </layout>
-   <zorder>horizontalLayoutWidget</zorder>
-   <zorder>verticalLayoutWidget</zorder>
-   <zorder>graphicsView</zorder>
   </widget>
  </widget>
  <layoutdefault spacing="6" margin="11"/>

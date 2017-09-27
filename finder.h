@@ -2,9 +2,8 @@
 #define FINDER_H
 
 #include <QObject>
+#include <QRect>
 #include <QPoint>
-
-class Rec;
 
 class Keeper : public QObject
 {
@@ -14,34 +13,30 @@ public:
 
     void clearAll();
 
-    bool setHighBlocks(int high);
-    bool setWidthBlocks(int width);
+    bool setRectField(const QRect &rect);
+    bool setRectBlocks(const QRect &rect);
     bool setCountBlocks(int count);
+    bool setStartEndWay(const QPoint &pointStart, const QPoint &pointEnd);
 
-    int highBlocks() const { return high_; }
-    int widthBlocks() const { return width_; }
+    QRect rectField() const { return field; }
+    QRect rectBlocks() const { return block; }
     int countBlocks() const { return count_; }
+    QPoint startPoint() const { return startWay_; }
+    QPoint endPoint() const { return endWay_; }
 
-    std::vector<Rec> &getBlocks() { return blocks; }
+    std::vector<QRect> &getBlocks() { return blocks; }
     std::vector<QPoint> &getWay() { return way; }
 
 signals:
 
-public slots:
+public slots://хранитель отвечает что актуально, а что нет(что нужно изменить)
 
 private:
-    int high_, width_, count_;
-    std::vector<Rec> blocks;
+    int count_;
+    QRect field, block;
+    QPoint startWay_, endWay_;
+    std::vector<QRect> blocks;
     std::vector<QPoint> way;
-};
-
-class Rec
-{
-public:
-    Rec(const QPoint &leftTop, const QPoint &rightBottom) : leftTop_(leftTop), rightBottom_(rightBottom) {}
-
-private:
-    QPoint leftTop_, rightBottom_;
 };
 
 
@@ -52,12 +47,14 @@ class Finder : public QObject
 public:
     explicit Finder(Keeper *keeper, QObject *parent = 0);
 
-signals:
+protected: signals:
+    void endWork();
 
 public slots:
+    void findWay();
 
 private:
-    Keeper *keeper_;
+    Keeper *const keeper_;
 };
 
 
@@ -68,12 +65,14 @@ class CreatorRec : public QObject
 public:
     explicit CreatorRec(Keeper *keeper, QObject *parent = 0);
 
-signals:
+protected: signals:
+    void endWork();
 
 public slots:
+    void generateBlocks();
 
 private:
-    Keeper *keeper_;
+    Keeper *const keeper_;
 };
 
 #endif // FINDER_H

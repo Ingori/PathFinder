@@ -14,6 +14,16 @@ MainClass::MainClass()
     //поисковик
     finder = new Finder(keeper, this);
 
+
+    //генерируем препятствия и находи путь по сигналам из mainWindow
+    connect(mainWindow, &MainWindow::refreshBlocks, creatorRec, &CreatorRec::generateBlocks);
+    connect(mainWindow, &MainWindow::refreshWay,    finder,     &Finder::findWay);
+
+    //по завершении генерации препятствий и пути обновляем интерфейс
+    connect(creatorRec, &CreatorRec::endWork, mainWindow, &MainWindow::updateView);
+    connect(finder,     &Finder::endWork,     mainWindow, &MainWindow::updateView);
+
+
     //отобразить пользовательский интерфейс
     mainWindow->show();
 }
