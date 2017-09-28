@@ -24,12 +24,8 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
-    mainclass.cpp \
-    finder.cpp
+        mainwindow.cpp
 
-HEADERS  += mainwindow.h \
-    mainclass.h \
-    finder.h
+HEADERS  += mainwindow.h
 
 FORMS    += mainwindow.ui

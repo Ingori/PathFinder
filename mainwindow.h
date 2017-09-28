@@ -3,7 +3,10 @@
 
 #include <QMainWindow>
 #include <QGraphicsScene>
-#include "finder.h"
+#include <QGraphicsItem>
+#include <QRect>
+#include <QPoint>
+//#include <QLine>
 
 namespace Ui {
 class MainWindow;
@@ -12,17 +15,9 @@ class MainWindow;
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
-
 public:
-    explicit MainWindow(Keeper *keeper, QWidget *parent = 0);
+    explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
-
-public slots:
-    void updateView();
-
-protected: signals:
-    void refreshBlocks();
-    void refreshWay();
 
 private slots:
     void on_refresh_clicked();
@@ -30,11 +25,22 @@ private slots:
     void on_pathFinder_clicked();
 
 private:
-    void writeToKeeper();
-
     Ui::MainWindow *ui;
-    Keeper *const keeper_;
     QGraphicsScene *scene;
+};
+
+
+
+class Rect : public QGraphicsItem
+{
+public:
+    Rect(const QRect &rect, QGraphicsItem *parent = 0) : QGraphicsItem(parent), rec(rect) {}
+
+    QRectF boundingRect() const;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+
+private:
+    QRect rec;
 };
 
 #endif // MAINWINDOW_H

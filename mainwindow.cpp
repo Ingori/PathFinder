@@ -1,16 +1,13 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
-#include <QRect>
 
-MainWindow::MainWindow(Keeper *keeper, QWidget *parent) :
+MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::MainWindow), keeper_(keeper)
+    ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
 
     setWindowTitle("PathFinder");
-
-    writeToKeeper();
 
     scene = new QGraphicsScene(this);
     ui->graphicsView->setScene(scene);
@@ -23,26 +20,27 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::updateView()
-{
-//все перерисовываем на основании данных из keeper
-}
-
 void MainWindow::on_refresh_clicked()
 {
-    writeToKeeper();
-    emit refreshBlocks();
+
 }
 
 void MainWindow::on_pathFinder_clicked()
 {
-//    keeper_->setStartEndWay(start, end);
-    emit refreshWay();
+
 }
 
-void MainWindow::writeToKeeper()
+
+
+QRectF Rect::boundingRect() const
 {
-    keeper_->setRectField(ui->graphicsView->rect());
-    keeper_->setCountBlocks(ui->countEl->value());
-    keeper_->setRectBlocks(QRect(0, 0, ui->widthEl->value(), ui->highEl->value()));
+//    qreal penWidth = 1;
+//    return QRectF(-radius - penWidth / 2, -radius - penWidth / 2,
+//                  diameter + penWidth, diameter + penWidth);
+    return QRectF(rec);
+}
+
+void Rect::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
+{
+    painter->drawRoundedRect(rec, 0, 0);
 }
