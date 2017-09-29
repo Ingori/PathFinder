@@ -7,6 +7,7 @@
 #include <QRect>
 #include <QPoint>
 //#include <QLine>
+#include "graph.h"
 
 namespace Ui {
 class MainWindow;
@@ -22,25 +23,13 @@ public:
 private slots:
     void on_refresh_clicked();
 
-    void on_pathFinder_clicked();
-
 private:
     Ui::MainWindow *ui;
+
+    void fillScene();
     QGraphicsScene *scene;
-};
 
-
-
-class Rect : public QGraphicsItem
-{
-public:
-    Rect(const QRect &rect, QGraphicsItem *parent = 0) : QGraphicsItem(parent), rec(rect) {}
-
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-private:
-    QRect rec;
+    Graph *graph;
 };
 
 #endif // MAINWINDOW_H

@@ -24,11 +24,11 @@
        <layout class="QGridLayout" name="gridLayout_3">
         <item row="0" column="1">
          <widget class="QSpinBox" name="highScreen">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
           <property name="maximum">
            <number>4096</number>
+          </property>
+          <property name="value">
+           <number>10</number>
           </property>
          </widget>
         </item>
@@ -48,11 +48,11 @@
         </item>
         <item row="1" column="1">
          <widget class="QSpinBox" name="widthScreen">
-          <property name="readOnly">
-           <bool>true</bool>
-          </property>
           <property name="maximum">
            <number>4096</number>
+          </property>
+          <property name="value">
+           <number>10</number>
           </property>
          </widget>
         </item>
@@ -73,30 +73,30 @@
       </item>
       <item>
        <layout class="QGridLayout" name="gridLayout_2">
-        <item row="1" column="1">
-         <widget class="QSpinBox" name="highEl">
-          <property name="maximum">
-           <number>4096</number>
-          </property>
-          <property name="value">
-           <number>10</number>
-          </property>
-         </widget>
-        </item>
-        <item row="1" column="0">
-         <widget class="QLabel" name="label_2">
-          <property name="text">
-           <string>Высота элемента: </string>
-          </property>
-         </widget>
-        </item>
         <item row="0" column="1">
          <widget class="QSpinBox" name="countEl">
           <property name="maximum">
            <number>16777216</number>
           </property>
           <property name="value">
-           <number>100</number>
+           <number>3</number>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_3">
+          <property name="text">
+           <string>Размер элемента: </string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="QSpinBox" name="sizeEl">
+          <property name="maximum">
+           <number>4096</number>
+          </property>
+          <property name="value">
+           <number>16</number>
           </property>
          </widget>
         </item>
@@ -104,23 +104,6 @@
          <widget class="QLabel" name="label">
           <property name="text">
            <string>Количество элементов: </string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="0">
-         <widget class="QLabel" name="label_3">
-          <property name="text">
-           <string>Ширина элемента: </string>
-          </property>
-         </widget>
-        </item>
-        <item row="2" column="1">
-         <widget class="QSpinBox" name="widthEl">
-          <property name="maximum">
-           <number>4096</number>
-          </property>
-          <property name="value">
-           <number>10</number>
           </property>
          </widget>
         </item>
@@ -140,22 +123,17 @@
        </spacer>
       </item>
       <item>
-       <layout class="QVBoxLayout" name="verticalLayout">
-        <item>
-         <widget class="QPushButton" name="refresh">
-          <property name="text">
-           <string>Обновить</string>
-          </property>
-         </widget>
-        </item>
-        <item>
-         <widget class="QPushButton" name="pathFinder">
-          <property name="text">
-           <string>Проложить маршрут</string>
-          </property>
-         </widget>
-        </item>
-       </layout>
+       <widget class="QPushButton" name="refresh">
+        <property name="minimumSize">
+         <size>
+          <width>100</width>
+          <height>40</height>
+         </size>
+        </property>
+        <property name="text">
+         <string>Обновить</string>
+        </property>
+       </widget>
       </item>
      </layout>
     </item>
