@@ -11,17 +11,17 @@ class Graph : public QObject
     Q_OBJECT
 public:
     explicit Graph(int width, int height, QObject *parent = 0);
-//    ~Graph() { nods.erase()
+    ~Graph();
 
     int width() const { return width_; }
     int height() const { return height_; }
     int countNods() const { return width_*height_; }
-    int countStep() const { return way.size(); }
+//    int countStep() const { return way.size(); }
     bool isFree(const QPoint &point) const;
 //    QPoint atStp(int ind) const;
 
 
-//    bool setWidthHeight(int width, int height);
+    bool setWidthHeight(int width, int height);
     bool setStartEnd(const QPoint &start, const QPoint &end);
 
     void randomFillGraph(int n);
@@ -38,9 +38,8 @@ private:
 
     int width_, height_;
     std::vector<Node *> nods;
-    Node *rootNode;
 
-    std::vector<Node *> way;
+//    std::vector<Node *> way;
 };
 
 

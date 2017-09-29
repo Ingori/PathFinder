@@ -8,6 +8,11 @@ Graph::Graph(int width, int height, QObject *parent) : QObject(parent), width_(w
     srand(time(0));
 }
 
+Graph::~Graph()
+{
+    nods.clear();
+}
+
 bool Graph::isFree(const QPoint &point) const
 {
     int ind = index(point);
@@ -37,10 +42,17 @@ bool Graph::setStartEnd(const QPoint &start, const QPoint &end)
     /**/
 }
 
-//bool Graph::setWidthHeight(int width, int height)
-//{
+bool Graph::setWidthHeight(int width, int height)
+{
+    if(!(width > 0 && height > 0))
+        return false;
 
-//}
+    width_ = width;
+    height_ = height;
+
+    nods.clear();
+    createGraph();
+}
 
 void Graph::refresh()
 {
