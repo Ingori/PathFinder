@@ -2,40 +2,35 @@
 #define GRAPH_H
 
 #include <QObject>
+#include <QSize>
 #include <QPoint>
 
+enum Status { free_, block, way };
 class Node;
 
 class Graph : public QObject
 {
     Q_OBJECT
 public:
-    explicit Graph(int width, int height, QObject *parent = 0);
+    explicit Graph(QObject *parent = 0);
     ~Graph();
 
-    int width() const { return width_; }
-    int height() const { return height_; }
-    int countNods() const { return width_*height_; }
-//    int countStep() const { return way.size(); }
-    bool isFree(const QPoint &point) const;
-//    QPoint atStp(int ind) const;
-
-
-    bool setWidthHeight(int width, int height);
-    bool setStartEnd(const QPoint &start, const QPoint &end);
-
-    void randomFillGraph(int n);
-
-protected: signals:
-    void wayIsFound(bool found);
+    Status status(const QPoint &point) const;
+    QSize size() const { return size_; }
 
 public slots:
-    void refresh();
+    void setSizeField(const QSize &size);
+    void setCountBlocks(int count);
+    void setStartEnd(const QPoint &start, const QPoint &end);
+
+protected: signals:
+    void dataChanged();
 
 private:
     void createGraph();
     int index(const QPoint &point) const;
 
+    QSize size_;
     int width_, height_;
     std::vector<Node *> nods;
 
@@ -48,10 +43,10 @@ class Node
 {
 public:
     Node(Node *left, Node *top, Node *right, Node *bottom) :
-        left_(left), top_(top), right_(right), bottom_(bottom), free(true) {}
+        left_(left), top_(top), right_(right), bottom_(bottom), status_(free_) {}
 
-    void setStatus(bool status) { free = status; }
-    bool isFree() const { return free; }
+    void setStatus(Status status) { status_ = status; }
+    Status status() const { return status_; }
 
     void setLeft(Node *left) { left_ = left; }
     void setTop(Node *top) { top_ = top; }
@@ -65,7 +60,7 @@ public:
 
 private:
     Node *left_, *top_, *right_, *bottom_;
-    bool free;
+    Status status_;
 };
 
 #endif // GRAPH_H

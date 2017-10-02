@@ -8,53 +8,30 @@ MainWindow::MainWindow(QWidget *parent) :
     ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-
     setWindowTitle("PathFinder");
 
-    graph = new Graph(ui->widthScreen->value(), ui->highScreen->value());
+    graph = new Graph();
 
-    scene = new GraphicsScene(ui->widthScreen->value(), ui->highScreen->value(), this);
+    scene = new GraphicsScene(graph, this);
     ui->graphicsView->setScene(scene);
+
+    connect(scene, &GraphicsScene::changeSizeField, graph, &Graph::setSizeField);
+    connect(scene, &GraphicsScene::changeCountBlocks, graph, &Graph::setCountBlocks);
+    connect(scene, &GraphicsScene::changeStartEnd, graph, &Graph::setStartEnd);
+    connect(graph, &Graph::dataChanged, scene, &GraphicsScene::updateData);
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+    /**/
 }
 
 void MainWindow::on_refresh_clicked()
 {
-    scene->clear();
-
-    int width = ui->widthScreen->value();
-    int height = ui->highScreen->value();
-    if(graph->width() != width || graph->height() != height)
-    {
-        graph->setWidthHeight(width, height);
-        scene->setWidthHeight(width, height);
-    }
-
-    graph->randomFillGraph(ui->countEl->value());
-
-    fillScene();
-}
-
-void MainWindow::fillScene()
-{
-    int left, top, width, height;
-    left = top = 0;
-    width = height = ui->sizeEl->value();
-    for(int i = 0; i < graph->height(); i++)
-    {
-        for(int j = 0; j < graph->width(); j++)
-        {
-            if(!graph->isFree(QPoint(j, i)))
-                scene->addItem(new Rect(QRect(left, top, width, height)));
-            left += width;
-        }
-        left = 0;
-        top += height;
-    }
+    scene->setSizeSceneBlock(QSize(ui->widthScreen->value(), ui->heightScreen->value()),
+                        QSize(ui->sizeEl->value(), ui->sizeEl->value()));
+    scene->setCountBlocks(ui->countEl->value());
 }
 
 
@@ -69,30 +46,63 @@ QRectF Rect::boundingRect() const
 
 void Rect::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, QWidget */*widget*/)
 {
+    painter->setBrush(QBrush(QColor(Qt::black)));
     painter->drawRoundedRect(rec, 0, 0);
 }
 
-//void Rect::mousePressEvent(QGraphicsSceneMouseEvent *event)
-//{
-
-//}
 
 
-
-bool GraphicsScene::setWidthHeight(int width, int height/*, int sizeBlock*/)
+GraphicsScene::GraphicsScene(const Graph *graph, QObject *parent) :
+    QGraphicsScene(parent), graph_(graph)
 {
-    width_ = width;
-    height_ = height;
+    start_ = QPoint(-1, -1);
+    end_ = QPoint(-1, -1);
+}
+
+bool GraphicsScene::setSizeSceneBlock(const QSize &sizeScene, const QSize &sizeBlock)
+{
+    /**/
+    sizeS = sizeScene;
+    sizeB = sizeBlock;
+    sizeField = QSize(sizeScene.width()/sizeBlock.width(), sizeScene.height()/sizeBlock.height());
+    emit changeSizeField(sizeField);
+}
+
+bool GraphicsScene::setCountBlocks(int count)
+{
+    /**/
+    countBlocks = count;
+    emit changeCountBlocks(countBlocks);
+}
+
+void GraphicsScene::updateData()
+{
+    int left, top, width, height;
+    left = top = 0;
+    width = sizeB.width();
+    height = sizeB.height();
+    sizeField = graph_->size();
+
+    for(int i = 0; i < sizeField.height(); i++)
+    {
+        for(int j = 0; j < sizeField.width(); j++)
+        {
+            if(graph_->status(QPoint(j, i)) != free_)
+                addItem(new Rect(QRect(left, top, width, height)));
+            left += width;
+        }
+        left = 0;
+        top += height;
+    }
 }
 
 void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
     QPointF pointF(event->scenePos());
 
-    int x = pointF.x()/width_;
-    int y = pointF.y()/height_;
+    int x = pointF.x()/sizeB.width();
+    int y = pointF.y()/sizeB.height();
 
-    qDebug()<<"x == "<<x<<"; y == "<<y<<";";
-
-    emit clicked(QPoint(x, y));
+//    emit clicked(QPoint(x, y));
+    qDebug()<<x<<y;
 }

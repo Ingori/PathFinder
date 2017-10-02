@@ -7,6 +7,7 @@
 #include <QGraphicsItem>
 #include <QRect>
 #include <QPoint>
+#include <QSize>
 //#include <QLine>
 #include "graph.h"
 
@@ -28,27 +29,20 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
-
-    void fillScene();
     GraphicsScene *scene;
-//    Rect *rect;
-    int width_, height;
-
     Graph *graph;
 };
 
 
 
-class Rect : public QGraphicsItem
+class Rect : public QObject, public QGraphicsItem
 {
+    Q_OBJECT
 public:
     Rect(const QRect &rect, QGraphicsItem *parent = 0) : QGraphicsItem(parent), rec(rect) {}
 
     QRectF boundingRect() const;
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
-
-//protected:
-//    void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 private:
     QRect rec;
@@ -60,19 +54,28 @@ class GraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    explicit GraphicsScene(int width, int height, QObject *parent = 0) :
-        QGraphicsScene(parent), width_(width), height_(height) { }
+    explicit GraphicsScene(const Graph *graph, QObject *parent = 0);
 
-    bool setWidthHeight(int width, int height/*, int sizeBlock*/);
+    bool setSizeSceneBlock(const QSize &sizeScene, const QSize &sizeBlock);
+    bool setCountBlocks(int count);
+
+public slots:
+    void updateData();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
 
 protected: signals:
-    void clicked(const QPoint &point);
+    void changeSizeField(const QSize &size);
+    void changeCountBlocks(int count);
+    void changeStartEnd(const QPoint &start, const QPoint &end);
 
 private:
-    int width_, height_;
+    QSize sizeS, sizeB, sizeField;
+    int countBlocks;
+    QPoint start_, end_;
+
+    const Graph *graph_;
 };
 
 #endif // MAINWINDOW_H

@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include <time.h>
 
-Graph::Graph(int width, int height, QObject *parent) : QObject(parent), width_(width), height_(height)
+Graph::Graph(QObject *parent) : QObject(parent)
 {
-    createGraph();
+//    createGraph();
     srand(time(0));
 }
 
@@ -13,50 +13,12 @@ Graph::~Graph()
     nods.clear();
 }
 
-bool Graph::isFree(const QPoint &point) const
+Status Graph::status(const QPoint &point) const
 {
     int ind = index(point);
     if(ind == -1)
-        return false;
-    return nods.at(ind)->isFree();
-}
-
-//QPoint Graph::atStp(int ind) const
-//{
-//    return way.at(ind);
-//}
-
-bool Graph::setStartEnd(const QPoint &start, const QPoint &end)
-{
-    int indStart = index(start);
-    int indEnd = index(end);
-    if(indStart == -1 || indEnd == -1)
-        return false;
-
-    Node *startN = nods.at(indStart);
-    Node *endN = nods.at(indEnd);
-
-    if(!startN->isFree() || !endN->isFree())
-        return false;
-
-    /**/
-}
-
-bool Graph::setWidthHeight(int width, int height)
-{
-    if(!(width > 0 && height > 0))
-        return false;
-
-    width_ = width;
-    height_ = height;
-
-    nods.clear();
-    createGraph();
-}
-
-void Graph::refresh()
-{
-
+        return free_;
+    return nods.at(ind)->status();
 }
 
 void Graph::createGraph()
@@ -64,9 +26,9 @@ void Graph::createGraph()
     Node *left, *top;
     left = top = 0;
 
-    for(int i = 0; i < height_; i++)
+    for(int i = 0; i < size_.height(); i++)
     {
-        for(int j = 0; j < width_; j++)
+        for(int j = 0; j < size_.width(); j++)
         {
             Node *node = new Node(left, top, 0, 0);
             nods.push_back(node);
@@ -82,34 +44,70 @@ void Graph::createGraph()
             }
         }
         left = 0;
-        top = nods.at(i*width_);
+        top = nods.at(i*size_.width());
     }
 }
 
-void Graph::randomFillGraph(int n)
+void Graph::setSizeField(const QSize &size)
 {
-    int count = width_*height_;
-    if(n >= count)
+//    if(!(size.width() > 0 && size.height() > 0))
+//        return false;
+
+//    width_ = width;
+//    height_ = height;dataChange
+
+    size_ = size;
+
+    nods.clear();
+    createGraph();
+
+    emit dataChanged();
+}
+
+void Graph::setCountBlocks(int count)
+{
+    int maxCount = size_.width()*size_.height();
+    if(count >= maxCount)
     {
         for(Node *node : nods)
-            node->setStatus(false);
+            node->setStatus(block);
         return;
     }
 
-    bool f = n < count/2;
-    if(!f) n = count - n;
+    bool f = count < maxCount/2;
+    if(!f) count = maxCount - count;
     for(Node *node : nods)
-        node->setStatus(f);
+        node->setStatus(f ? free_ : block);
 
-    while(n > 0)
+    while(count > 0)
     {
-        int ind = rand()%count;
-        if(nods.at(ind)->isFree() == f)
+        int ind = rand()%maxCount;
+        if(nods.at(ind)->status() == free_)
         {
-            nods[ind]->setStatus(!f);
-            n--;
+            nods[ind]->setStatus(!f ? free_ : block);
+            count--;
         }
     }
+
+    emit dataChanged();
+}
+
+void Graph::setStartEnd(const QPoint &start, const QPoint &end)
+{
+    int indStart = index(start);
+    int indEnd = index(end);
+    if(indStart == -1 || indEnd == -1)
+        return ;
+
+    Node *startN = nods.at(indStart);
+    Node *endN = nods.at(indEnd);
+
+    if(startN->status() != free_ || endN->status() != free_)
+        return;
+
+    /**/
+
+    emit dataChanged();
 }
 
 int Graph::index(const QPoint &point) const
@@ -117,10 +115,10 @@ int Graph::index(const QPoint &point) const
     int x = point.x();
     int y = point.y();
 
-    if(!(x >= 0 && x < width_))
+    if(!(x >= 0 && x < size_.width()))
         return -1;
-    if(!(y >= 0 && y < height_))
+    if(!(y >= 0 && y < size_.height()))
         return -1;
 
-    return y*width_ + x;
+    return y*size_.width() + x;
 }
