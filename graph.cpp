@@ -2,15 +2,14 @@
 #include <stdlib.h>
 #include <time.h>
 
-Graph::Graph(QObject *parent) : QObject(parent)
+Graph::Graph(QObject *parent) : QObject(parent), mask(1<<8), start(0), end(0)
 {
-//    createGraph();
     srand(time(0));
 }
 
 Graph::~Graph()
 {
-    nods.clear();
+    clearNods();
 }
 
 Status Graph::status(const QPoint &point) const
@@ -18,47 +17,46 @@ Status Graph::status(const QPoint &point) const
     int ind = index(point);
     if(ind == -1)
         return free_;
-    return nods.at(ind)->status();
+    return (Status)nods.at(ind)->status();
 }
 
 void Graph::createGraph()
 {
     Node *left, *top;
-    left = top = 0;
+    left = top = nullptr;
 
     for(int i = 0; i < size_.height(); i++)
     {
         for(int j = 0; j < size_.width(); j++)
         {
-            Node *node = new Node(left, top, 0, 0);
+            Node *node = new Node(free_);
+            node->addNode(left);
+            node->addNode(top);
             nods.push_back(node);
 
             if(left)
-                left->setRight(node);
+                left->addNode(node);
             left = node;
 
             if(top)
             {
-                top->setBottom(node);
-                top = top->right();
+                top->addNode(node);
+                top = nods.at(i*size_.width() + j);
             }
         }
-        left = 0;
+        left = nullptr;
         top = nods.at(i*size_.width());
     }
 }
 
 void Graph::setSizeField(const QSize &size)
 {
-//    if(!(size.width() > 0 && size.height() > 0))
-//        return false;
-
-//    width_ = width;
-//    height_ = height;dataChange
+    if(size.width() < 0 || size.height() < 0)
+        return;
 
     size_ = size;
 
-    nods.clear();
+    clearNods();
     createGraph();
 
     emit dataChanged();
@@ -82,7 +80,7 @@ void Graph::setCountBlocks(int count)
     while(count > 0)
     {
         int ind = rand()%maxCount;
-        if(nods.at(ind)->status() == free_)
+        if(nods.at(ind)->status() == f ? free_ : block)
         {
             nods[ind]->setStatus(!f ? free_ : block);
             count--;
@@ -92,22 +90,45 @@ void Graph::setCountBlocks(int count)
     emit dataChanged();
 }
 
-void Graph::setStartEnd(const QPoint &start, const QPoint &end)
+void Graph::setPoint(const QPoint &point)
 {
-    int indStart = index(start);
-    int indEnd = index(end);
-    if(indStart == -1 || indEnd == -1)
-        return ;
-
-    Node *startN = nods.at(indStart);
-    Node *endN = nods.at(indEnd);
-
-    if(startN->status() != free_ || endN->status() != free_)
+    int ind = index(point);
+    if(ind == -1)
         return;
 
-    /**/
+    Node *node = nods.at(ind);
+    if(node->status() == block)
+        return;
+
+    if(!start)
+        start = node;
+    else if(!end)
+    {
+        end = node;
+        findPath(start, end);
+        start = end = nullptr;
+    }
 
     emit dataChanged();
+}
+
+void Graph::findPath(Node *start, Node *end)
+{
+    if(!start || !end)
+        return;
+
+    std::queue<Node *> qNods;
+
+    setDeployed(start);
+    qNods.push(start);
+
+
+    while()
+    {
+    Node *node = qNods.front();
+    qNods.pop();
+
+    int st
 }
 
 int Graph::index(const QPoint &point) const
@@ -121,4 +142,72 @@ int Graph::index(const QPoint &point) const
         return -1;
 
     return y*size_.width() + x;
+}
+
+void Graph::clearNods()
+{
+    for(auto node : nods)
+        delete node;
+    nods.clear();
+}
+
+void Graph::isolateNode(Node *node)
+{
+    Node *neighbor = node->nextNode();
+    while(neighbor)
+    {
+        neighbor->deleteNode(node);
+        neighbor = node->nextNode();
+        node->deleteNode(neighbor);
+    }
+}
+
+void Graph::setDeployed(Node *node)
+{
+    node->setStatus(node->status() & mask);
+}
+
+void Graph::resetDeployed(Node *node)
+{
+    node->setStatus(node->status() & ~mask);
+}
+
+bool Graph::isDeployed(const Node *node) const
+{
+    return node->status() & mask;
+}
+
+
+
+Node::Node(int status) : status_(status)
+{
+    currentIt = nods.begin();
+}
+
+void Node::addNode(Node *node)
+{
+    if(node && node != this)
+        nods.insert(node);
+}
+
+bool Node::deleteNode(Node *node)
+{
+    auto it = nods.find(node);
+    if(it == nods.end())
+        return false;
+
+    if(currentIt == it)
+        currentIt++;
+
+    nods.erase(it);
+    return true;
+}
+
+Node *Node::nextNode()
+{
+    if(currentIt != nods.end())
+        return *currentIt++;
+
+    currentIt = nods.begin();
+    return nullptr;
 }

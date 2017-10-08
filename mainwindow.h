@@ -35,17 +35,27 @@ private:
 
 
 
-class Rect : public QObject, public QGraphicsItem
+class Item : /*public QObject,*/ public QGraphicsItem
 {
-    Q_OBJECT
+//    Q_OBJECT
 public:
-    Rect(const QRect &rect, QGraphicsItem *parent = 0) : QGraphicsItem(parent), rec(rect) {}
+    Item(const QRect &rect, const QColor &color, QGraphicsItem *parent = 0)
+        : QGraphicsItem(parent), rec(rect), color_(color) {}
 
-    QRectF boundingRect() const;
-    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+    QRectF boundingRect() const override;
+    void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+
+    void setColor(const QColor &color) { color_ = color; update(); }
+
+//protected: signals:
+//    void clicked(Item *item);
+
+//protected:
+//    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     QRect rec;
+    QColor color_;
 };
 
 
@@ -54,28 +64,25 @@ class GraphicsScene : public QGraphicsScene
 {
     Q_OBJECT
 public:
-    explicit GraphicsScene(const Graph *graph, QObject *parent = 0);
+    explicit GraphicsScene(Graph *graph, QObject *parent = 0);
 
     bool setSizeSceneBlock(const QSize &sizeScene, const QSize &sizeBlock);
     bool setCountBlocks(int count);
 
 public slots:
-    void updateData();
+    void updateField();
+//    void onItemClicked(Item *item);
 
 protected:
-    void mousePressEvent(QGraphicsSceneMouseEvent *event);
-
-protected: signals:
-    void changeSizeField(const QSize &size);
-    void changeCountBlocks(int count);
-    void changeStartEnd(const QPoint &start, const QPoint &end);
+    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
+    void createItem(const QRect &rect, const QColor &color);
+
     QSize sizeS, sizeB, sizeField;
     int countBlocks;
-    QPoint start_, end_;
 
-    const Graph *graph_;
+    Graph *graph_;
 };
 
 #endif // MAINWINDOW_H

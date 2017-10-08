@@ -1,9 +1,13 @@
 #ifndef GRAPH_H
 #define GRAPH_H
 
-#include <QObject>
+#include <queue>
+#include <unordered_set>
+//#include <set>
 #include <QSize>
 #include <QPoint>
+
+#include <QDebug>
 
 enum Status { free_, block, way };
 class Node;
@@ -18,23 +22,31 @@ public:
     Status status(const QPoint &point) const;
     QSize size() const { return size_; }
 
-public slots:
     void setSizeField(const QSize &size);
     void setCountBlocks(int count);
-    void setStartEnd(const QPoint &start, const QPoint &end);
+    void setPoint(const QPoint &point);
 
-protected: signals:
+private: signals:
     void dataChanged();
 
 private:
     void createGraph();
+    void findPath(Node *start, Node *end);
     int index(const QPoint &point) const;
+    void clearNods();
+    void isolateNode(Node *node);
+
+    void setDeployed(Node *node);
+    void resetDeployed(Node *node);
+    bool isDeployed(const Node *node) const;
+    const int mask;
 
     QSize size_;
     int width_, height_;
     std::vector<Node *> nods;
 
-//    std::vector<Node *> way;
+    Node *start, *end;
+    std::queue<Node *> queueNods;
 };
 
 
@@ -42,25 +54,20 @@ private:
 class Node
 {
 public:
-    Node(Node *left, Node *top, Node *right, Node *bottom) :
-        left_(left), top_(top), right_(right), bottom_(bottom), status_(free_) {}
+    Node(int status);
 
-    void setStatus(Status status) { status_ = status; }
-    Status status() const { return status_; }
+    void setStatus(int status) { status_ = status; }
+    int status() const { return status_; }
 
-    void setLeft(Node *left) { left_ = left; }
-    void setTop(Node *top) { top_ = top; }
-    void setRight(Node *right) { right_ = right; }
-    void setBottom(Node *bottom) { bottom_ = bottom; }
-
-    Node *left() const { return left_; }
-    Node *top() const { return top_; }
-    Node *right() const { return right_; }
-    Node *bottom() const { return bottom_; }
+    void addNode(Node *node);
+    bool deleteNode(Node *node);
+    Node *nextNode();
+    bool hasNode() const { return !nods.empty(); }
 
 private:
-    Node *left_, *top_, *right_, *bottom_;
-    Status status_;
+    std::unordered_set<Node *> nods;
+    std::unordered_set<Node *>::iterator currentIt;
+    int status_;
 };
 
 #endif // GRAPH_H
