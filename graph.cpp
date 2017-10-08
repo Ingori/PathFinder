@@ -17,13 +17,14 @@ Status Graph::status(const QPoint &point) const
     int ind = index(point);
     if(ind == -1)
         return free_;
-    return (Status)nods.at(ind)->status();
+    return nodeStatus(nods.at(ind));
 }
 
 void Graph::createGraph()
 {
     Node *left, *top;
     left = top = nullptr;
+    int topRow = 0;
 
     for(int i = 0; i < size_.height(); i++)
     {
@@ -41,11 +42,12 @@ void Graph::createGraph()
             if(top)
             {
                 top->addNode(node);
-                top = nods.at(i*size_.width() + j);
+                top = nods.at(++topRow);
             }
         }
         left = nullptr;
-        top = nods.at(i*size_.width());
+        topRow = i*size_.width();
+        top = nods.at(topRow);
     }
 }
 
@@ -100,6 +102,13 @@ void Graph::setPoint(const QPoint &point)
     if(node->status() == block)
         return;
 
+//    Node *nd = node->nextNode();
+//    while(nd)
+//    {
+//        nd->setStatus(deployed);
+//        nd = node->nextNode();
+//    }
+
     if(!start)
         start = node;
     else if(!end)
@@ -117,18 +126,32 @@ void Graph::findPath(Node *start, Node *end)
     if(!start || !end)
         return;
 
+    Node *node = nullptr;
+//    vector
     std::queue<Node *> qNods;
-
     setDeployed(start);
     qNods.push(start);
 
-
-    while()
+    while(!qNods.empty())
     {
-    Node *node = qNods.front();
-    qNods.pop();
+        node = qNods.front();
+        qNods.pop();
 
-    int st
+        if(node == end)
+            break;
+
+        Node *nd = node->nextNode();
+        while(nd)
+        {
+            if(!isDeployed(nd) && nd->status() != block)
+            {
+                setDeployed(nd);
+                qNods.push(nd);
+            }
+            nd = node->nextNode();
+        }
+    }
+
 }
 
 int Graph::index(const QPoint &point) const
@@ -164,7 +187,8 @@ void Graph::isolateNode(Node *node)
 
 void Graph::setDeployed(Node *node)
 {
-    node->setStatus(node->status() & mask);
+//    node->setStatus(node->status() & mask);
+    node->setStatus(deployed/* & mask*/);
 }
 
 void Graph::resetDeployed(Node *node)
@@ -174,7 +198,13 @@ void Graph::resetDeployed(Node *node)
 
 bool Graph::isDeployed(const Node *node) const
 {
-    return node->status() & mask;
+//    return node->status() & mask;
+    return node->status() == deployed;
+}
+
+Status Graph::nodeStatus(const Node *node) const
+{
+    return (Status)(node->status() & ~mask);
 }
 
 
@@ -188,6 +218,8 @@ void Node::addNode(Node *node)
 {
     if(node && node != this)
         nods.insert(node);
+
+    currentIt = nods.begin();
 }
 
 bool Node::deleteNode(Node *node)
