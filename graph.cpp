@@ -51,27 +51,31 @@ void Graph::createGraph()
     }
 }
 
-void Graph::setSizeField(const QSize &size)
+bool Graph::setSizeField(const QSize &size)
 {
     if(size.width() < 0 || size.height() < 0)
-        return;
+        return false;
 
     size_ = size;
 
     clearNods();
     createGraph();
 
+    start = end = nullptr;
     emit dataChanged();
+    return true;
 }
 
-void Graph::setCountBlocks(int count)
+int Graph::setCountBlocks(int count)
 {
     int maxCount = size_.width()*size_.height();
     if(count >= maxCount)
     {
         for(Node *node : nods)
             node->setStatus(block);
-        return;
+        start = end = nullptr;
+        emit dataChanged();
+        return maxCount;
     }
 
     bool f = count < maxCount/2;
@@ -79,17 +83,22 @@ void Graph::setCountBlocks(int count)
     for(Node *node : nods)
         node->setStatus(f ? free_ : block);
 
-    while(count > 0)
+    double coeff = maxCount > RAND_MAX ? (double)maxCount/RAND_MAX : 1;
+
+    int i = count;
+    while(i > 0)
     {
-        int ind = rand()%maxCount;
+        int ind = ((int)(coeff*rand()))%maxCount;
         if(nods.at(ind)->status() == f ? free_ : block)
         {
             nods[ind]->setStatus(!f ? free_ : block);
-            count--;
+            i--;
         }
     }
 
+    start = end = nullptr;
     emit dataChanged();
+    return f ? count : maxCount - count;
 }
 
 void Graph::setPoint(const QPoint &point)
@@ -101,6 +110,8 @@ void Graph::setPoint(const QPoint &point)
     Node *node = nods.at(ind);
     if(node->status() == block)
         return;
+
+    node->setStatus(strend);
 
     if(!start)
         start = node;
@@ -151,13 +162,15 @@ void Graph::findPath(Node *start, Node *end)
         }
     }
 
-    node = end;
-    if(node->previous())
-        while(node)
+    node = end->previous();
+    if(node)
+        while(node != start)
         {
             node->setStatus(way);
             node = node->previous();
         }
+    else
+        emit cantFindPath();
 
     for(Node *node : deployed)
         node->setPrevious(nullptr);
@@ -182,18 +195,6 @@ void Graph::clearNods()
         delete node;
     nods.clear();
 }
-
-void Graph::isolateNode(Node *node)
-{
-    Node *neighbor = node->nextNode();
-    while(neighbor)
-    {
-        neighbor->deleteNode(node);
-        neighbor = node->nextNode();
-        node->deleteNode(neighbor);
-    }
-}
-
 
 
 

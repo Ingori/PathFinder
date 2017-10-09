@@ -35,9 +35,8 @@ private:
 
 
 
-class Item : /*public QObject,*/ public QGraphicsItem
+class Item : public QGraphicsItem
 {
-//    Q_OBJECT
 public:
     Item(const QRect &rect, const QColor &color, QGraphicsItem *parent = 0)
         : QGraphicsItem(parent), rec(rect), color_(color) {}
@@ -46,12 +45,6 @@ public:
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 
     void setColor(const QColor &color) { color_ = color; update(); }
-
-//protected: signals:
-//    void clicked(Item *item);
-
-//protected:
-//    void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
 
 private:
     QRect rec;
@@ -67,21 +60,23 @@ public:
     explicit GraphicsScene(Graph *graph, QObject *parent = 0);
 
     bool setSizeSceneBlock(const QSize &sizeScene, const QSize &sizeBlock);
-    bool setCountBlocks(int count);
+    int setCountBlocks(int count);
 
-public slots:
-    void updateField();
-//    void onItemClicked(Item *item);
+//public slots:
+//    void updateField();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event) override;
+
+private slots:
+    void updateField();
+    void messageCantFind();
 
 private:
     void createItem(const QRect &rect, const QColor &color);
 
     QSize sizeS, sizeB, sizeField;
     int countBlocks;
-
     Graph *graph_;
 };
 

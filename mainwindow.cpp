@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QMessageBox>
 
 #include <QDebug>
 
@@ -27,16 +28,13 @@ void MainWindow::on_refresh_clicked()
 {
     scene->setSizeSceneBlock(QSize(ui->widthScreen->value(), ui->heightScreen->value()),
                         QSize(ui->sizeEl->value(), ui->sizeEl->value()));
-    scene->setCountBlocks(ui->countEl->value());
+    ui->countEl->setValue(scene->setCountBlocks(ui->countEl->value()));
 }
 
 
 
 QRectF Item::boundingRect() const
 {
-//    qreal penWidth = 1;
-//    return QRectF(-radius - penWidth / 2, -radius - penWidth / 2,
-//                  diameter + penWidth, diameter + penWidth);
     return QRectF(rec);
 }
 
@@ -46,17 +44,13 @@ void Item::paint(QPainter *painter, const QStyleOptionGraphicsItem */*option*/, 
     painter->drawRoundedRect(rec, 0, 0);
 }
 
-//void Item::mousePressEvent(QGraphicsSceneMouseEvent *event)
-//{
-//    emit clicked(this);
-//}
-
 
 
 GraphicsScene::GraphicsScene(Graph *graph, QObject *parent) :
     QGraphicsScene(parent), graph_(graph)
 {
     connect(graph_, &Graph::dataChanged, this, &GraphicsScene::updateField);
+    connect(graph_, &Graph::cantFindPath, this, &GraphicsScene::messageCantFind);
 }
 
 bool GraphicsScene::setSizeSceneBlock(const QSize &sizeScene, const QSize &sizeBlock)
@@ -68,11 +62,9 @@ bool GraphicsScene::setSizeSceneBlock(const QSize &sizeScene, const QSize &sizeB
     graph_->setSizeField(sizeField);
 }
 
-bool GraphicsScene::setCountBlocks(int count)
+int GraphicsScene::setCountBlocks(int count)
 {
-    /**/
-    countBlocks = count;
-    graph_->setCountBlocks(countBlocks);
+    return countBlocks = graph_->setCountBlocks(count);
 }
 
 void GraphicsScene::updateField()
@@ -85,6 +77,8 @@ void GraphicsScene::updateField()
     height = sizeB.height();
     sizeField = graph_->size();
 
+    addRect(QRectF(QPoint(0, 0), sizeS), QPen(QColor(Qt::black)));
+
     for(int i = 0; i < sizeField.height(); i++)
     {
         for(int j = 0; j < sizeField.width(); j++)
@@ -93,10 +87,8 @@ void GraphicsScene::updateField()
                 createItem(QRect(left, top, width, height), QColor(Qt::black));
             else if(graph_->status(QPoint(j, i)) == way)
                 createItem(QRect(left, top, width, height), QColor(Qt::green));
-            else if(graph_->status(QPoint(j, i)) == free_)
-                createItem(QRect(left, top, width, height), QColor(Qt::white));
-//            else if(graph_->status(QPoint(j, i)) == deployed)
-//                createItem(QRect(left, top, width, height), QColor(Qt::green));
+            else if(graph_->status(QPoint(j, i)) == strend)
+                createItem(QRect(left, top, width, height), QColor(Qt::red));
             left += width;
         }
         left = 0;
@@ -120,6 +112,11 @@ void GraphicsScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         return;
 
     graph_->setPoint(QPoint(x, y));
+}
+
+void GraphicsScene::messageCantFind()
+{
+    QMessageBox::information(nullptr, QString(), tr("Путь не найден."));
 }
 
 void GraphicsScene::createItem(const QRect &rect, const QColor &color)

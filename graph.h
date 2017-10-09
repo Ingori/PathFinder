@@ -3,13 +3,12 @@
 
 #include <queue>
 #include <unordered_set>
-//#include <set>
 #include <QSize>
 #include <QPoint>
 
 #include <QDebug>
 
-enum Status { free_, block, way };
+enum Status { free_, block, way, strend };
 class Node;
 
 class Graph : public QObject
@@ -22,26 +21,23 @@ public:
     Status status(const QPoint &point) const;
     QSize size() const { return size_; }
 
-    void setSizeField(const QSize &size);
-    void setCountBlocks(int count);
+    bool setSizeField(const QSize &size);
+    int setCountBlocks(int count);
     void setPoint(const QPoint &point);
 
 private: signals:
     void dataChanged();
+    void cantFindPath();
 
 private:
     void createGraph();
     void findPath(Node *start, Node *end);
     int index(const QPoint &point) const;
     void clearNods();
-    void isolateNode(Node *node);
 
     QSize size_;
-    int width_, height_;
     std::vector<Node *> nods;
-
     Node *start, *end;
-    std::queue<Node *> queueNods;
 };
 
 
@@ -65,10 +61,8 @@ public:
 private:
     std::unordered_set<Node *> nods;
     std::unordered_set<Node *>::iterator currentIt;
-    Node *previousNode;
-//    std::vector<Node *> nods;
-//    std::vector<Node *>::iterator currentIt;
     int status_;
+    Node *previousNode;
 };
 
 #endif // GRAPH_H
