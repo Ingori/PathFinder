@@ -36,12 +36,6 @@ private:
     void clearNods();
     void isolateNode(Node *node);
 
-//    void setDeployed(Node *node);
-//    void resetDeployed(Node *node);
-//    bool isDeployed(const Node *node) const;
-//    Status nodeStatus(const Node* node) const;
-//    const int mask;
-
     QSize size_;
     int width_, height_;
     std::vector<Node *> nods;

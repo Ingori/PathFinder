@@ -102,13 +102,6 @@ void Graph::setPoint(const QPoint &point)
     if(node->status() == block)
         return;
 
-//    Node *nd = node->nextNode();
-//    while(nd)
-//    {
-//        nd->setStatus(deployed);
-//        nd = node->nextNode();
-//    }
-
     if(!start)
         start = node;
     else if(!end)
@@ -141,6 +134,7 @@ void Graph::findPath(Node *start, Node *end)
         if(node == end)
         {
             end->setPrevious(node);
+            deployed.insert(end);
             break;
         }
 
@@ -158,11 +152,13 @@ void Graph::findPath(Node *start, Node *end)
     }
 
     node = end;
-    while(node)
-    {
-        node->setStatus(way);
-        node = node->previous();
-    }
+    if(node->previous())
+        while(node)
+        {
+            node->setStatus(way);
+            node = node->previous();
+        }
+
     for(Node *node : deployed)
         node->setPrevious(nullptr);
 }
@@ -198,27 +194,6 @@ void Graph::isolateNode(Node *node)
     }
 }
 
-//void Graph::setDeployed(Node *node)
-//{
-////    node->setStatus(node->status() & mask);
-//    node->setStatus(deployed/* & mask*/);
-//}
-
-//void Graph::resetDeployed(Node *node)
-//{
-//    node->setStatus(node->status() & ~mask);
-//}
-
-//bool Graph::isDeployed(const Node *node) const
-//{
-////    return node->status() & mask;
-//    return node->status() == deployed;
-//}
-
-//Status Graph::nodeStatus(const Node *node) const
-//{
-//    return (Status)(node->status() & ~mask);
-//}
 
 
 
@@ -262,6 +237,12 @@ Node *Node::nextNode()
 
 bool Node::setPrevious(Node *node)
 {
+    if(!node)
+    {
+        previousNode = node;
+        return true;
+    }
+
     auto it = nods.find(node);
     if(it == nods.end())
         return false;

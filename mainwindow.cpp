@@ -92,7 +92,7 @@ void GraphicsScene::updateField()
             if(graph_->status(QPoint(j, i)) == block)
                 createItem(QRect(left, top, width, height), QColor(Qt::black));
             else if(graph_->status(QPoint(j, i)) == way)
-                createItem(QRect(left, top, width, height), QColor(Qt::gray));
+                createItem(QRect(left, top, width, height), QColor(Qt::green));
             else if(graph_->status(QPoint(j, i)) == free_)
                 createItem(QRect(left, top, width, height), QColor(Qt::white));
 //            else if(graph_->status(QPoint(j, i)) == deployed)
