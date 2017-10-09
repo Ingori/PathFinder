@@ -9,7 +9,7 @@
 
 #include <QDebug>
 
-enum Status { free_, block, way, deployed };
+enum Status { free_, block, way };
 class Node;
 
 class Graph : public QObject
@@ -36,11 +36,11 @@ private:
     void clearNods();
     void isolateNode(Node *node);
 
-    void setDeployed(Node *node);
-    void resetDeployed(Node *node);
-    bool isDeployed(const Node *node) const;
-    Status nodeStatus(const Node* node) const;
-    const int mask;
+//    void setDeployed(Node *node);
+//    void resetDeployed(Node *node);
+//    bool isDeployed(const Node *node) const;
+//    Status nodeStatus(const Node* node) const;
+//    const int mask;
 
     QSize size_;
     int width_, height_;
@@ -65,9 +65,13 @@ public:
     Node *nextNode();
     bool hasNode() const { return !nods.empty(); }
 
+    bool setPrevious(Node *node);
+    Node *previous() const { return previousNode; }
+
 private:
     std::unordered_set<Node *> nods;
     std::unordered_set<Node *>::iterator currentIt;
+    Node *previousNode;
 //    std::vector<Node *> nods;
 //    std::vector<Node *>::iterator currentIt;
     int status_;

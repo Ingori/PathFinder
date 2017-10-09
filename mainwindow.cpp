@@ -95,8 +95,8 @@ void GraphicsScene::updateField()
                 createItem(QRect(left, top, width, height), QColor(Qt::gray));
             else if(graph_->status(QPoint(j, i)) == free_)
                 createItem(QRect(left, top, width, height), QColor(Qt::white));
-            else if(graph_->status(QPoint(j, i)) == deployed)
-                createItem(QRect(left, top, width, height), QColor(Qt::green));
+//            else if(graph_->status(QPoint(j, i)) == deployed)
+//                createItem(QRect(left, top, width, height), QColor(Qt::green));
             left += width;
         }
         left = 0;
